@@ -1,35 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PartyInvites.Models;
+using System.Linq;
 
 namespace PartyInvites.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+#region View Results
+        //View Results
+        public ViewResult Index()
+        {
+            timeofDay();
+
+            return View("MyView");
+        }
+
+        [HttpGet]
+        public ViewResult RsvpForm()
         {
             return View();
         }
 
-        public IActionResult About()
+        [HttpPost]
+        public ViewResult RsvpForm(GuestResponse guestResponse)
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
+            if (ModelState.IsValid)
+            {
+                Repository.AddResponse(guestResponse);
+                return View("Thanks", guestResponse);
+            }
+            else
+            {
+                //there is a validation error
+                return View();
+            }
         }
 
-        public IActionResult Contact()
+        public ViewResult ListResponses()
         {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            return View(Repository.Responses.Where(r => r.WillAttend == true));
         }
 
-        public IActionResult Error()
+        #endregion
+
+        private void timeofDay()
         {
-            return View();
+            int hour = DateTime.Now.Hour;
+            ViewBag.setThis = hour < 12 ? "Good Morning" : "Good Afternoon";
         }
+
+
     }
 }
